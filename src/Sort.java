@@ -10,7 +10,7 @@ public class Sort {
 
 	public void quicksort(int i, int j) throws IOException { // Quicksort
 		int pivotIndex = findpivot(i, j); // Pick a pivot
-		short pivotVal = pool.acquireRecord(pivotIndex*4);
+		short pivotVal = pool.read(pivotIndex*4);
 		pool.swap(pivotIndex*4, j*4); // Stick pivot at end
 		// k will be the first position in the right subarray
 		int k = partition(i, j - 1, pivotVal);
@@ -30,17 +30,17 @@ public class Sort {
 	public int partition(int left, int right, short pivot) throws IOException {
 		while (left <= right) { // Move bounds inward until they meet
 
-			short leftByteShort = pool.acquireRecord(left*4);
+			short leftByteShort = pool.read(left*4);
 			while (leftByteShort < pivot) {
-				left++;
-				leftByteShort = pool.acquireRecord(left*4);
+				left+=1;
+				leftByteShort = pool.read(left*4);
 
 			}
-			short rightByteShort = pool.acquireRecord(right*4);
+			short rightByteShort = pool.read(right*4);
 			while ((right >= left) && (rightByteShort >= pivot)) {
 				right -= 1;
 				if (right >= 0) {
-					rightByteShort = pool.acquireRecord(right*4);
+					rightByteShort = pool.read(right*4);
 				}
 
 			}

@@ -4,36 +4,29 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 public class Buffer {
-	private byte[] val;
+	private byte[] val = new byte[4096];
 	private byte dirtyBit;
 	private int fileIndex;
 	private int blockIndex;
+	private ByteBuffer buff;
+	private RandomAccessFile file;
 
-	public Buffer(int index) {
+	public Buffer(int index, RandomAccessFile filename) throws IOException {
 		dirtyBit = 0;
-		val = new byte[4096];
 		fileIndex = index;
 		blockIndex = index/4096;
+		file = filename;
+		file.seek(index);
+		file.read(val);
+		buff = ByteBuffer.wrap(val);
 	}
 
-	public byte[] readBlock(RandomAccessFile filename) throws IOException {
-		filename.seek(fileIndex);
-		filename.read(val);
-		byte[] retVal = val;
-		return retVal;
-
-	}
-
-	public void writeToBlock(byte[] written, int index, RandomAccessFile filename) throws IOException {
-		int buffIndex = index % 4096;
-		for (int i = 0; i < written.length; i++) {
-			val[buffIndex + i] = written[i];
-		}
+	public void writeToBlock(short written, int index) throws IOException {
+		buff.putShort(index % 4096, written);
 		dirtyBit = 1;
 	}
 	
-	public short getRecord(int index) {
-		ByteBuffer buff = ByteBuffer.wrap(val);
+	public short readToBlock(int index) {
 		return buff.getShort(index % 4096);
 	}
 
@@ -43,10 +36,10 @@ public class Buffer {
 	}
 
 
-	public void releaseBuffer(RandomAccessFile filename) throws IOException {
+	public void releaseBuffer() throws IOException {
 		if (dirtyBit == 1) {
-			filename.seek(fileIndex);
-			filename.write(val);
+			file.seek(fileIndex);
+			file.write(val);
 		}
 	}
 
