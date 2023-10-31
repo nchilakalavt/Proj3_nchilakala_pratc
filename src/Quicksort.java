@@ -4,6 +4,7 @@
  */
 
 import java.io.IOException;
+import static java.lang.Math.toIntExact;
 import java.io.File;
 import java.io.RandomAccessFile;
 
@@ -63,11 +64,11 @@ public class Quicksort {
 	 */
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		RandomAccessFile file = new RandomAccessFile(args[0], "rw");
-		BufferPool buff = new BufferPool(Integer.parseInt(args[1]), file);
-
-		Sort sorter = new Sort(buff);
-		sorter.quicksort(0, (int)((file.length()/4) - 1));
-		buff.flushPool();
+		Sort sorter = new Sort(new BufferPool(Integer.parseInt(args[1]), file));
+		int x = toIntExact((file.length()/4) - 1);
+		System.out.println(file.length());
+		System.out.println(x);
+		sorter.quicksort(0, x);
 		file.close();
 	}
 }
