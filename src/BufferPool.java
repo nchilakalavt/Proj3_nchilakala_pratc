@@ -12,9 +12,12 @@ public class BufferPool {
 		filename = file;
 		count = 0;
 	}
-	//checks if the index is at the top of the pool or if it is in the pool. if not it will create a new block and add it to the pool and return the record at the given index
+
+	// checks if the index is at the top of the pool or if it is in the pool. if not
+	// it will create a new block and add it to the pool and return the record at
+	// the given index
 	public byte[] read(int index) throws IOException {
-		if (pool[0] != null && index/4096 == pool[0].getBlockIndex()) {
+		if (pool[0] != null && index / 4096 == pool[0].getBlockIndex()) {
 			return pool[0].readBlock(index);
 		}
 		int poolIndex = findPoolIndex(index);
@@ -29,19 +32,29 @@ public class BufferPool {
 			return bufferAdd.readBlock(index);
 		}
 	}
-	//writes the record to a certain index and checks lru
+
+	// writes the record to a certain index and checks lru
 	public void write(byte[] written, int index) throws IOException {
-		if (pool[0] != null && index/4096 == pool[0].getBlockIndex()) {
+		if (pool[0] != null && index / 4096 == pool[0].getBlockIndex()) {
 			pool[0].writeToBlock(written, index);
 			return;
 		}
 		int poolIndex = findPoolIndex(index);
+		if (poolIndex != -1) {
 		Buffer temp = pool[poolIndex];
 		System.arraycopy(pool, 0, pool, 1, poolIndex);
 		temp.writeToBlock(written, index);
 		pool[0] = temp;
+		}
+		else {
+			Buffer bufferAdd = new Buffer(index, filename);
+			add(bufferAdd);
+			bufferAdd.writeToBlock(written, index);
+		}
+
 	}
-	//finds where in the pool the index is. returns -1 if not in the pool
+
+	// finds where in the pool the index is. returns -1 if not in the pool
 	private int findPoolIndex(int index) {
 		if (count == 0) {
 			return -1;
@@ -54,24 +67,27 @@ public class BufferPool {
 			return -1;
 		}
 	}
-	//adds the buffer to the pool and shifts the rest of the elements down by one
+
+	// adds the buffer to the pool and shifts the rest of the elements down by one
 	private Buffer add(Buffer buff) throws IOException {
 		if (count == pool.length) {
 			pool[pool.length - 1].releaseBuffer();
 			count -= 1;
 		}
-		System.arraycopy(pool, 0, pool, 1, pool.length-1);
+		System.arraycopy(pool, 0, pool, 1, pool.length - 1);
 		pool[0] = buff;
 		count += 1;
 		return buff;
 	}
-	//writes all the remaining buffers in the pool to the file
+
+	// writes all the remaining buffers in the pool to the file
 	public void flushPool() throws IOException {
 		for (int i = 0; i < count; i++) {
 			pool[i].releaseBuffer();
 		}
 	}
-	//writes the record at index one to index two and vice versa
+
+	// writes the record at index one to index two and vice versa
 	public void swap(byte[] recordOne, byte[] recordTwo, int indexOne, int indexTwo) throws IOException {
 		write(recordOne, indexTwo);
 		write(recordTwo, indexOne);

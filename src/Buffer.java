@@ -16,7 +16,7 @@ public class Buffer {
 		fileIndex = index;
 		blockIndex = index/4096;
 		file = filename;
-		file.seek(fileIndex);
+		file.seek(blockIndex);
 		file.read(val);
 	}
 	//Finds the record at the index
@@ -40,7 +40,7 @@ public class Buffer {
 	//rewrites the buffer in the file if the dirty bit is 1
 	public void releaseBuffer() throws IOException {
 		if (dirtyBit == 1) {
-			file.seek(fileIndex);
+			file.seek(blockIndex);
 			file.write(val);
 		}
 	}
