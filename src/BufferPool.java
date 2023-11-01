@@ -1,11 +1,11 @@
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 import java.io.IOException;
 
 public class BufferPool {
 	private Buffer[] pool;
 	private RandomAccessFile filename;
 	private int count;
+	private final int bufferSize = 4096;
 
 	public BufferPool(int size, RandomAccessFile file) {
 		pool = new Buffer[size];
@@ -17,7 +17,7 @@ public class BufferPool {
 	// it will create a new block and add it to the pool and return the record at
 	// the given index
 	public byte[] read(int index) throws IOException {
-		if (pool[0] != null && index / 4096 == pool[0].getBlockIndex()) {
+		if (pool[0] != null && index / bufferSize == pool[0].getBlockIndex()) {
 			return pool[0].readBlock(index);
 		}
 		int poolIndex = findPoolIndex(index);
@@ -35,7 +35,7 @@ public class BufferPool {
 
 	// writes the record to a certain index and checks lru
 	public void write(byte[] written, int index) throws IOException {
-		if (pool[0] != null && index / 4096 == pool[0].getBlockIndex()) {
+		if (pool[0] != null && index / bufferSize == pool[0].getBlockIndex()) {
 			pool[0].writeToBlock(written, index);
 			return;
 		}
@@ -60,7 +60,7 @@ public class BufferPool {
 			return -1;
 		} else {
 			for (int i = 0; i < count; i++) {
-				if (pool[i].getBlockIndex() == index / 4096) {
+				if (pool[i].getBlockIndex() == index / bufferSize) {
 					return i;
 				}
 			}

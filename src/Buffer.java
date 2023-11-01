@@ -1,48 +1,72 @@
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 
+/**
+ * class to represent a Buffer, 4 byte array storing KV pairs
+ * @author pratc nchilakala
+ * @version 11/1/2023
+ * 
+ */
 public class Buffer {
 	private byte[] val;
 	private byte dirtyBit;
-	private int fileIndex;
 	private int blockIndex;
 	private RandomAccessFile file;
-	
+	private final int size = 4096;
+	   /**
+	    * constructor for the buffer 
+	    * @param index int index of the buffer
+	    * @param filename the filename we are reading and writing to 
+	    * @throws IOException exception thrown for the random access file
+	    */
 	public Buffer(int index, RandomAccessFile filename) throws IOException {
 		dirtyBit = 0;
-		val = new byte[4096];
-		fileIndex = index;
-		blockIndex = index/4096;
+		val = new byte[size];
+		blockIndex = index/size;
 		file = filename;
-		file.seek(blockIndex*4096);
+		file.seek(blockIndex * size);
 		file.read(val);
 	}
-	//Finds the record at the index
+	/**
+	 * 
+	 * @param index
+	 * @return
+	 * @throws IOException
+	 */
 	public byte[] readBlock(int index) throws IOException {
 		byte[] record = new byte[4];
-		System.arraycopy(val, index % 4096, record, 0, record.length);
+		System.arraycopy(val, index % size, record, 0, record.length);
 		return record;
 	}
-	//writes the record to the index and sets dirty bit to 1 so we know we have to rewrite
+
+	
+	/**
+	 * method to write the buffer to the block 
+	 * @param written byte array to be written 
+	 * @param index index we are writting to
+	 * @throws IOException exception thrown to handle errors 
+	 */
 	public void writeToBlock(byte[] written, int index) throws IOException {
-		System.arraycopy(written, 0, val, index % 4096, written.length);
+		System.arraycopy(written, 0, val, index % size, written.length);
 		dirtyBit = 1;
 	}
 	
 
-
-
-	//rewrites the buffer in the file if the dirty bit is 1
+	/**
+	 * method to release the buffer using the dirty bit value
+	 * @throws IOException for handling exceptions 
+	 */
 	public void releaseBuffer() throws IOException {
 		if (dirtyBit == 1) {
-			file.seek(blockIndex * 4096);
+			file.seek(blockIndex * size);
 			file.write(val);
 		}
 	}
 
-	//finds which block the buffer is in (ex: 0, 1, 2, 3)
+	/**
+	 * getBlockIndex 
+	 * @return the blockIndex integer
+	 */
 	public int getBlockIndex() {
 		return blockIndex;
 	}
