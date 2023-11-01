@@ -66,8 +66,6 @@ public class Quicksort {
 		RandomAccessFile file = new RandomAccessFile(args[0], "rw");
 		Sort sorter = new Sort(new BufferPool(Integer.parseInt(args[1]), file));
 		int x = toIntExact((file.length()/4) - 1);
-		System.out.println(file.length());
-		System.out.println(x);
 		sorter.quicksort(0, x);
 		file.close();
 	}

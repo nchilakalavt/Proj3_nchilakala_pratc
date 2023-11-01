@@ -16,7 +16,7 @@ public class Buffer {
 		fileIndex = index;
 		blockIndex = index/4096;
 		file = filename;
-		file.seek(blockIndex);
+		file.seek(blockIndex*4096);
 		file.read(val);
 	}
 	//Finds the record at the index
@@ -33,21 +33,15 @@ public class Buffer {
 	
 
 
-	public byte[] getVal() {
-		return val;
-	}
 
 	//rewrites the buffer in the file if the dirty bit is 1
 	public void releaseBuffer() throws IOException {
 		if (dirtyBit == 1) {
-			file.seek(blockIndex);
+			file.seek(blockIndex * 4096);
 			file.write(val);
 		}
 	}
 
-	public int getIndex() {
-		return fileIndex;
-	}
 	//finds which block the buffer is in (ex: 0, 1, 2, 3)
 	public int getBlockIndex() {
 		return blockIndex;

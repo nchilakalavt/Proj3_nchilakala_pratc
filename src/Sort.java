@@ -14,35 +14,15 @@ public class Sort {
 		quicksortHelp(i, j);
 		pool.flushPool();
 	}
-	// sorting method
-//	private void quicksortHelp(int i, int j) throws IOException { // Quicksort
-//		int pivotIndex = findpivot(i, j); // Pick a pivot
-//		byte[] pivotValRecord = pool.read(pivotIndex*4);
-//		
-//		pool.swap(pivotValRecord, pool.read(j*4), pivotIndex*4, j*4); // Stick pivot at end
-//		// k will be the first position in the right subarray
-//		int k = partition(i, j - 1, getShort(pivotValRecord));
-//		pool.swap(pool.read(k*4), pool.read(j*4), k*4, j*4); // Put pivot in place
-//		if ((k - i) > 1) {
-//			quicksortHelp(i, k - 1);
-//		} // Sort left partition
-//		if ((j*4 - k*4) > 1) {
-//			quicksortHelp(k + 1, j);
-//		} // Sort right partition
-//		
-//	}
 
 	private void quicksortHelp(int i, int j) throws IOException {
 		if (i < j) {
-			int pivot = partition(i, j, getShort(pool.read(j*4)));
+			int pivot = partition(i, j, getShort(pool.read(j * 4)));
 			quicksortHelp(i, pivot - 1);
 			quicksortHelp(pivot + 1, j);
 		}
 	}
 
-	public int findpivot(int i, int j) {
-		return (i + j) / 2;
-	}
 
 	public int partition(int left, int right, short pivot) throws IOException {
 		int i = left - 1;
@@ -64,14 +44,6 @@ public class Sort {
 			if (j <= i) {
 				break;
 			} // Swap out-of-place values
-//			byte[] leftTest = pool.read(i*4);
-//			if (!Arrays.equals(leftRecord, leftTest)) {
-//				System.out.println("i:" + i * 4 + "\n");
-//			}
-//			byte[] rightTest = pool.read(j*4);
-//			if (!Arrays.equals(rightRecord, rightTest)) {
-//				System.out.println("j:" + j * 4 + "\n");
-//			}
 			pool.swap(leftRecord, rightRecord, i * 4, j * 4);
 		}
 		pool.swap(pool.read(i * 4), pool.read(right * 4), i * 4, right * 4);

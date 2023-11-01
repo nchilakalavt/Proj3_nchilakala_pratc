@@ -25,7 +25,7 @@ public class BufferPool {
 			Buffer temp = pool[poolIndex];
 			System.arraycopy(pool, 0, pool, 1, poolIndex);
 			pool[0] = temp;
-			return pool[0].readBlock(index);
+			return temp.readBlock(index);
 		} else {
 			Buffer bufferAdd = new Buffer(index, filename);
 			add(bufferAdd);
@@ -74,7 +74,7 @@ public class BufferPool {
 			pool[pool.length - 1].releaseBuffer();
 			count -= 1;
 		}
-		System.arraycopy(pool, 0, pool, 1, pool.length - 1);
+		System.arraycopy(pool, 0, pool, 1, count);
 		pool[0] = buff;
 		count += 1;
 		return buff;
@@ -82,8 +82,8 @@ public class BufferPool {
 
 	// writes all the remaining buffers in the pool to the file
 	public void flushPool() throws IOException {
-		for (int i = 0; i < count; i++) {
-			pool[i].releaseBuffer();
+		for (Buffer i : pool) {
+			i.releaseBuffer();
 		}
 	}
 
